@@ -2,6 +2,7 @@ package teste;
 
 import java.awt.EventQueue;
 
+import interfece_grafica.JanelaInicial;
 import interfece_grafica.JanelaPrincipal;
 
 public class TesteInterfaceGrafica {
@@ -14,7 +15,7 @@ public class TesteInterfaceGrafica {
 
 				try {
 
-					new JanelaPrincipal();
+					new JanelaInicial();
 
 				} catch (Exception e) {
 					e.printStackTrace();
