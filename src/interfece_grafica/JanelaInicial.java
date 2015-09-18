@@ -1,7 +1,6 @@
 package interfece_grafica;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 
 import javax.swing.ButtonGroup;
@@ -13,8 +12,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-
-import org.eclipse.wb.swing.FocusTraversalOnArray;
 
 public class JanelaInicial {
 
@@ -141,11 +138,6 @@ public class JanelaInicial {
 		group.add(ltgRadioButton);
 		group.add(roundRobinRadioButton);
 		group.add(schedulingRadioButton);
-
-		opcoesAlgoritmosPanel.setFocusTraversalPolicy(new FocusTraversalOnArray(
-				new Component[] { ltgRadioButton, roundRobinRadioButton, schedulingRadioButton }));
-		
-		
 
 		return opcoesAlgoritmosPanel;
 	}
