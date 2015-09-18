@@ -14,31 +14,40 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 
 public class JanelaPrincipal {
+
+	private JFrame frame;
 
 	private final int LARGURA_TELA = 900;
 	private final int ALTURA_TELA = 500;
 
-	private JFrame framePrincipal;
+	private String algoritmo;
+	private int numCpu;
+	private int quantum;
 
-	public JanelaPrincipal() {
+	public JanelaPrincipal(String algoritmo, int numCpu, int quantum) {
+		initFrame();
 
-		framePrincipal = new JFrame();
+		this.algoritmo = algoritmo;
+		this.numCpu = numCpu;
+		this.quantum = quantum;
 
-		framePrincipal.setVisible(true);
-		framePrincipal.setResizable(false);
+	}
 
-		framePrincipal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		framePrincipal.setSize(LARGURA_TELA, ALTURA_TELA);
-		framePrincipal.setLocationRelativeTo(null);
-
-		framePrincipal.getContentPane().setLayout(null);
-		framePrincipal.getContentPane().add(getPainelCabecalho());
-		framePrincipal.getContentPane().add(getPainelProcessos());
-		framePrincipal.getContentPane().add(getPainelControle());
-		framePrincipal.getContentPane().add(getCpuPainel());
-
+	private void initFrame() {
+		frame = new JFrame();
+		frame.setVisible(true);
+		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(LARGURA_TELA, ALTURA_TELA);
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setLayout(null);
+		frame.getContentPane().add(getPainelCabecalho());
+		frame.getContentPane().add(getPainelProcessos());
+		frame.getContentPane().add(getPainelControle());
+		frame.getContentPane().add(getCpuPainel());
 	}
 
 	private JPanel getCpuPainel() {
@@ -120,7 +129,7 @@ public class JanelaPrincipal {
 		stopButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				JOptionPane.showMessageDialog(framePrincipal, "Stop");
+				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 			}
 		});
 		return stopButton;
@@ -132,7 +141,7 @@ public class JanelaPrincipal {
 		criarNovoProcessoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				JOptionPane.showMessageDialog(framePrincipal, "Criar Processo");
+				JOptionPane.showMessageDialog(frame, "Criar Processo");
 			}
 		});
 		return criarNovoProcessoButton;
@@ -145,7 +154,7 @@ public class JanelaPrincipal {
 		startButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				JOptionPane.showMessageDialog(framePrincipal, "Start");
+				JOptionPane.showMessageDialog(frame, "Start");
 			}
 		});
 		return startButton;

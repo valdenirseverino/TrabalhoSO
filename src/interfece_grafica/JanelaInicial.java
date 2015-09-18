@@ -1,13 +1,17 @@
 package interfece_grafica;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
@@ -16,31 +20,38 @@ import javax.swing.SpinnerNumberModel;
 public class JanelaInicial {
 
 	private JFrame frame;
-	private JComboBox processadoresComboBox;
+	private JComboBox<Integer> processadoresComboBox;
 	private JSpinner quantumSpinner;
 
 	private JRadioButton ltgRadioButton;
 	private JRadioButton roundRobinRadioButton;
 	private JRadioButton schedulingRadioButton;
 
-	private Thread verQuantum = new Thread(new Runnable() {
+	private final String LTG = "ltg";
+	private final String ROUND_ROBIN = "round";
+	private final String SCHEDULING = "scheduling";
 
-		@Override
-		public void run() {
+	private int numCpu;
+	private int valorQuantum;
 
-			if (roundRobinRadioButton.isSelected()) {
-				System.out.println("chibata");
-				quantumSpinner.setEnabled(true);
-				quantumSpinner.setFocusable(false);
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+
+					new JanelaInicial();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
+		});
 
-		}
-	});
+	}
 
 	public JanelaInicial() {
 		initialize();
 		initLayout();
-		
 	}
 
 	private void initialize() {
@@ -85,14 +96,14 @@ public class JanelaInicial {
 		return numeroProcessadoresLabel;
 	}
 
-	private JComboBox getProcessadoresComboBox() {
+	private JComboBox<Integer> getProcessadoresComboBox() {
 
 		Integer[] lista = new Integer[64];
 
 		for (int i = 0; i < 64; i++)
 			lista[i] = i + 1;
 
-		processadoresComboBox = new JComboBox(lista);
+		processadoresComboBox = new JComboBox<Integer>(lista);
 		processadoresComboBox.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		processadoresComboBox.setBounds(240, 188, 66, 20);
 
@@ -111,11 +122,57 @@ public class JanelaInicial {
 	private JButton getBotaoIniciar() {
 
 		JButton botaoIniciar = new JButton("Iniciar");
-
 		botaoIniciar.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		botaoIniciar.setBounds(106, 229, 127, 37);
+		botaoIniciar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				validarCampos();
+			}
 
+		});
 		return botaoIniciar;
+	}
+
+	private void validarCampos() {
+
+		String algoritmo = "";
+
+		if (ltgRadioButton.isSelected())
+			algoritmo = LTG;
+
+		if (roundRobinRadioButton.isSelected())
+			algoritmo = ROUND_ROBIN;
+
+		if (schedulingRadioButton.isSelected())
+			algoritmo = SCHEDULING;
+
+		if (algoritmo.length() == 0) {
+			JOptionPane.showMessageDialog(frame, "Escolha um algortmo");
+			return;
+		}
+
+		int resposta = -1;
+
+		while (resposta == -1)
+			resposta = JOptionPane.showConfirmDialog(frame, "mensagem", "titulo", JOptionPane.YES_NO_OPTION);
+
+		valorQuantum = Integer.parseInt(quantumSpinner.getValue().toString());
+		numCpu = Integer.parseInt(processadoresComboBox.getSelectedItem().toString());
+
+		if (!algoritmo.equals(ROUND_ROBIN))
+			valorQuantum = -1;
+
+		if (resposta == 0) {
+
+			frame.setVisible(false);
+			frame.dispose();
+
+			System.out.println(valorQuantum + " " + numCpu + " " + algoritmo);
+
+			new JanelaPrincipal(algoritmo, numCpu, valorQuantum);
+
+		}
 	}
 
 	private JPanel getPainelAlgoritmos() {
