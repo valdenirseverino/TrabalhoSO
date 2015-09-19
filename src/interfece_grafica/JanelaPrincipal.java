@@ -3,18 +3,20 @@ package interfece_grafica;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
+
+import algoritmos.Generico;
 
 public class JanelaPrincipal {
 
@@ -27,13 +29,26 @@ public class JanelaPrincipal {
 	private int numCpu;
 	private int quantum;
 
+	private Generico generico;
+
+	// private HashMap<Integer, Processo> listaProcesos = new HashMap<>();
+	private HashMap<Integer, JPanel> listaCPU = new HashMap<>();
+	private ArrayList<JPanel> cores;
+
+	private JPanel painelCpu;
+
 	public JanelaPrincipal(String algoritmo, int numCpu, int quantum) {
-		initFrame();
 
 		this.algoritmo = algoritmo;
 		this.numCpu = numCpu;
 		this.quantum = quantum;
 
+		System.out.println("Janela Principal Criada");
+		System.out.println("Algoritmo escolhido:" + algoritmo);
+		System.out.println("Quantum escolhido:" + quantum);
+		System.out.println("Numero de CPU:" + numCpu);
+
+		initFrame();
 	}
 
 	private void initFrame() {
@@ -47,48 +62,71 @@ public class JanelaPrincipal {
 		frame.getContentPane().add(getPainelCabecalho());
 		frame.getContentPane().add(getPainelProcessos());
 		frame.getContentPane().add(getPainelControle());
-		frame.getContentPane().add(getCpuPainel());
+		frame.getContentPane().add(getPainelCPU());
 	}
 
-	private JPanel getCpuPainel() {
+	private JPanel getPainelCPU() {
+
+		initPainelCPU();
 
 		JPanel cpuPanel = new JPanel();
-		cpuPanel.setBackground(Color.RED);
-		cpuPanel.setBounds(0, 41, LARGURA_TELA, 189);
+		cpuPanel.setBackground(Color.DARK_GRAY);
+		cpuPanel.setBounds(0, 41, 900, 302);
 		cpuPanel.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel("Cores de Processamento:");
-		lblNewLabel.setBounds(10, 11, 199, 22);
-		lblNewLabel.setBackground(Color.WHITE);
+		JLabel lblNewLabel = new JLabel("Cores de Processamento: " + numCpu);
+		lblNewLabel.setForeground(Color.YELLOW);
+		lblNewLabel.setBounds(10, 11, 266, 22);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-		cpuPanel.add(lblNewLabel);
-
-		JPanel panel = new JPanel();
-
-		int qtd = 64;
-
-		for (int i = 0; i < qtd; i++)
-			panel.add(new JButton(i + ""));
+		lblNewLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(20, 44, 858, 118);
+		scrollPane.setBounds(20, 44, 858, 229);
+		scrollPane.setViewportView(painelCpu);
 
+		cpuPanel.add(lblNewLabel);
 		cpuPanel.add(scrollPane);
 
-		scrollPane.setViewportView(panel);
-		panel.setLayout(new GridLayout(2, 0, 0, 0));
+		if (quantum > 0) {
+
+			JLabel valorQuantumLabel = new JLabel("Valor do Quantum: " + quantum);
+			valorQuantumLabel.setHorizontalAlignment(SwingConstants.LEFT);
+			valorQuantumLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+			valorQuantumLabel.setForeground(Color.YELLOW);
+			valorQuantumLabel.setBounds(286, 11, 266, 22);
+
+			cpuPanel.add(valorQuantumLabel);
+		}
 
 		return cpuPanel;
+	}
 
+	private void initPainelCPU() {
+
+		this.painelCpu = new JPanel();
+		this.painelCpu.setLayout(new GridLayout(4, 2, 0, 0));
+
+		cores = new ArrayList<>();
+
+		for (int i = 0; i < this.numCpu; i++) {
+
+			JPanel panel = new JPanel();
+			panel.setSize(50, 50);
+			panel.setLayout(new GridLayout(0, 1, 0, 0));
+			panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+			cores.add(panel);
+		}
+
+		for (JPanel panel : cores)
+			this.painelCpu.add(panel);
 	}
 
 	private JPanel getPainelProcessos() {
 		JPanel processosPanel = new JPanel();
-		processosPanel.setBounds(0, 229, 900, 212);
+		processosPanel.setBounds(0, 342, 900, 99);
 		processosPanel.setBackground(Color.GRAY);
 		return processosPanel;
 	}
@@ -100,10 +138,10 @@ public class JanelaPrincipal {
 		cabecalhoPanel.setBounds(0, 0, 900, 42);
 		cabecalhoPanel.setLayout(null);
 
-		JLabel tituloCabecalhoLabel = new JLabel("Algoritmo: xxxx");
-		tituloCabecalhoLabel.setBounds(10, 11, 124, 22);
+		JLabel tituloCabecalhoLabel = new JLabel("Algoritmo: " + algoritmo);
+		tituloCabecalhoLabel.setBounds(10, 11, 852, 22);
 		tituloCabecalhoLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		tituloCabecalhoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		tituloCabecalhoLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		cabecalhoPanel.add(tituloCabecalhoLabel);
 
 		return cabecalhoPanel;
@@ -126,37 +164,58 @@ public class JanelaPrincipal {
 	private JButton getButtonStop() {
 		JButton stopButton = new JButton("Stop");
 		stopButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+
 		stopButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+				frame.setVisible(false);
+				frame.dispose();
+				new JanelaInicial();
 			}
 		});
+
 		return stopButton;
 	}
 
 	private JButton getButtonCriarProcesso() {
 		JButton criarNovoProcessoButton = new JButton("Novo Processo");
 		criarNovoProcessoButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+
 		criarNovoProcessoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				JOptionPane.showMessageDialog(frame, "Criar Processo");
+
+				if (generico != null)
+					generico.adicionarProcesso();
 			}
 		});
+
 		return criarNovoProcessoButton;
 	}
 
 	private JButton getButtonStart() {
+
 		JButton startButton = new JButton("Start");
 
 		startButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+
 		startButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				JOptionPane.showMessageDialog(frame, "Start");
+
+				try {
+
+					generico = new Generico(listaCPU, cores, painelCpu);
+					generico.start();
+
+					startButton.setEnabled(false);
+
+				} catch (Exception e) {
+					System.out.println("botao de start desativado");
+				}
 			}
 		});
+
 		return startButton;
 	}
 

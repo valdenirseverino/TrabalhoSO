@@ -1,7 +1,6 @@
 package interfece_grafica;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -20,34 +19,19 @@ import javax.swing.SpinnerNumberModel;
 public class JanelaInicial {
 
 	private JFrame frame;
-	private JComboBox<Integer> processadoresComboBox;
+	private JComboBox<Object> processadoresComboBox;
 	private JSpinner quantumSpinner;
 
 	private JRadioButton ltgRadioButton;
 	private JRadioButton roundRobinRadioButton;
 	private JRadioButton schedulingRadioButton;
 
-	private final String LTG = "ltg";
-	private final String ROUND_ROBIN = "round";
-	private final String SCHEDULING = "scheduling";
+	private final String LTG = "Least Yime to Go (LTG)";
+	private final String ROUND_ROBIN = "Fila de Prioridade comRound Robin";
+	private final String SCHEDULING = "Inteval-based Scheduling";
 
 	private int numCpu;
 	private int valorQuantum;
-
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-
-					new JanelaInicial();
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-	}
 
 	public JanelaInicial() {
 		initialize();
@@ -96,14 +80,14 @@ public class JanelaInicial {
 		return numeroProcessadoresLabel;
 	}
 
-	private JComboBox<Integer> getProcessadoresComboBox() {
+	private JComboBox<Object> getProcessadoresComboBox() {
 
 		Integer[] lista = new Integer[64];
 
 		for (int i = 0; i < 64; i++)
 			lista[i] = i + 1;
 
-		processadoresComboBox = new JComboBox<Integer>(lista);
+		processadoresComboBox = new JComboBox<>(lista);
 		processadoresComboBox.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		processadoresComboBox.setBounds(240, 188, 66, 20);
 
@@ -124,6 +108,7 @@ public class JanelaInicial {
 		JButton botaoIniciar = new JButton("Iniciar");
 		botaoIniciar.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		botaoIniciar.setBounds(106, 229, 127, 37);
+		
 		botaoIniciar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
