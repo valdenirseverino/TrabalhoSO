@@ -20,6 +20,7 @@ public class JanelaInicial {
 
 	private JFrame frame;
 	private JComboBox<Object> processadoresComboBox;
+	private JSpinner processsosIniciaisSpinner;
 	private JSpinner quantumSpinner;
 
 	private JRadioButton ltgRadioButton;
@@ -30,9 +31,6 @@ public class JanelaInicial {
 	private final String ROUND_ROBIN = "Fila de Prioridade comRound Robin";
 	private final String SCHEDULING = "Inteval-based Scheduling";
 
-	private int numCpu;
-	private int valorQuantum;
-
 	public JanelaInicial() {
 		initialize();
 		initLayout();
@@ -41,7 +39,7 @@ public class JanelaInicial {
 	private void initialize() {
 		frame = new JFrame();
 		frame.getContentPane().setBackground(Color.WHITE);
-		frame.setSize(350, 320);
+		frame.setSize(350, 400);
 		frame.setResizable(false);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -57,12 +55,30 @@ public class JanelaInicial {
 		frame.getContentPane().add(getProcessadoresComboBox());
 		frame.getContentPane().add(getQuantumSpinner());
 		frame.getContentPane().add(getBotaoIniciar());
+		frame.getContentPane().add(getNumeroProcessosIniciaisLabel());
+		frame.getContentPane().add(getNumeroProcessosIniciais());
+	}
+
+	private JLabel getNumeroProcessosIniciaisLabel() {
+		JLabel lblNmeroDeProcessos = new JLabel("N\u00FAmero de processos iniciais:");
+		lblNmeroDeProcessos.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblNmeroDeProcessos.setBounds(10, 232, 233, 22);
+		return lblNmeroDeProcessos;
+	}
+
+	private JSpinner getNumeroProcessosIniciais() {
+		processsosIniciaisSpinner = new JSpinner();
+		processsosIniciaisSpinner
+				.setModel(new SpinnerNumberModel(new Integer(10), new Integer(0), null, new Integer(1)));
+		processsosIniciaisSpinner.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		processsosIniciaisSpinner.setBounds(253, 230, 66, 20);
+		return processsosIniciaisSpinner;
 	}
 
 	private JLabel getQuantumLabel() {
 		JLabel valorQuantumLabel = new JLabel("Valor do Quantum:");
 		valorQuantumLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		valorQuantumLabel.setBounds(10, 155, 151, 22);
+		valorQuantumLabel.setBounds(10, 166, 151, 22);
 		return valorQuantumLabel;
 	}
 
@@ -76,7 +92,7 @@ public class JanelaInicial {
 	private JLabel getProcessadorLabel() {
 		JLabel numeroProcessadoresLabel = new JLabel("N\u00FAmero de processadores:");
 		numeroProcessadoresLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		numeroProcessadoresLabel.setBounds(10, 188, 210, 22);
+		numeroProcessadoresLabel.setBounds(10, 199, 210, 22);
 		return numeroProcessadoresLabel;
 	}
 
@@ -88,8 +104,9 @@ public class JanelaInicial {
 			lista[i] = i + 1;
 
 		processadoresComboBox = new JComboBox<>(lista);
+		processadoresComboBox.setSelectedIndex(7);
 		processadoresComboBox.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		processadoresComboBox.setBounds(240, 188, 66, 20);
+		processadoresComboBox.setBounds(253, 202, 66, 20);
 
 		return processadoresComboBox;
 	}
@@ -99,7 +116,7 @@ public class JanelaInicial {
 		quantumSpinner = new JSpinner();
 		quantumSpinner.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		quantumSpinner.setModel(new SpinnerNumberModel(1, 1, 100, 1));
-		quantumSpinner.setBounds(240, 157, 66, 20);
+		quantumSpinner.setBounds(253, 169, 66, 20);
 		return quantumSpinner;
 	}
 
@@ -107,8 +124,8 @@ public class JanelaInicial {
 
 		JButton botaoIniciar = new JButton("Iniciar");
 		botaoIniciar.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		botaoIniciar.setBounds(106, 229, 127, 37);
-		
+		botaoIniciar.setBounds(116, 290, 127, 37);
+
 		botaoIniciar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -121,6 +138,9 @@ public class JanelaInicial {
 
 	private void validarCampos() {
 
+		int valorQuantum = Integer.parseInt(quantumSpinner.getValue().toString());
+		int numCpu = Integer.parseInt(processadoresComboBox.getSelectedItem().toString());
+		int numProcessos = Integer.parseInt(processsosIniciaisSpinner.getValue().toString());
 		String algoritmo = "";
 
 		if (ltgRadioButton.isSelected())
@@ -140,11 +160,10 @@ public class JanelaInicial {
 		int resposta = -1;
 
 		while (resposta == -1)
-			resposta = JOptionPane.showConfirmDialog(frame, "mensagem", "titulo", JOptionPane.YES_NO_OPTION);
+			resposta = JOptionPane.showConfirmDialog(frame, "Vc está certo disso?", "Confirmação", JOptionPane.YES_NO_OPTION);
 
-		valorQuantum = Integer.parseInt(quantumSpinner.getValue().toString());
-		numCpu = Integer.parseInt(processadoresComboBox.getSelectedItem().toString());
-
+		
+		
 		if (!algoritmo.equals(ROUND_ROBIN))
 			valorQuantum = -1;
 
@@ -153,9 +172,7 @@ public class JanelaInicial {
 			frame.setVisible(false);
 			frame.dispose();
 
-			System.out.println(valorQuantum + " " + numCpu + " " + algoritmo);
-
-			new JanelaPrincipal(algoritmo, numCpu, valorQuantum);
+			new JanelaPrincipal(algoritmo, numCpu, valorQuantum, numProcessos);
 
 		}
 	}
@@ -165,7 +182,7 @@ public class JanelaInicial {
 		JPanel opcoesAlgoritmosPanel = new JPanel();
 		opcoesAlgoritmosPanel.setForeground(Color.BLACK);
 		opcoesAlgoritmosPanel.setBackground(Color.WHITE);
-		opcoesAlgoritmosPanel.setBounds(10, 44, 296, 100);
+		opcoesAlgoritmosPanel.setBounds(10, 44, 309, 100);
 		opcoesAlgoritmosPanel.setLayout(null);
 
 		initButtonLTG();
@@ -200,9 +217,9 @@ public class JanelaInicial {
 
 	private void initButtonLTG() {
 		ltgRadioButton = new JRadioButton("Least Time to Go (LTG)");
+		ltgRadioButton.setSelected(true);
 		ltgRadioButton.setBackground(Color.WHITE);
 		ltgRadioButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		ltgRadioButton.setBounds(6, 7, 193, 29);
 	}
-
 }

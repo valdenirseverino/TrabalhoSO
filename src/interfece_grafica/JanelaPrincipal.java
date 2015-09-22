@@ -6,7 +6,6 @@ import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,156 +15,228 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
-import algoritmos.Generico;
+import algoritmos.EscalonadorGenerico;
 
 public class JanelaPrincipal {
 
+	// ==========================================================================================================================================
+	// ATRIBUTOS DA JANELA
+	// ==========================================================================================================================================
+
 	private JFrame frame;
-
-	private final int LARGURA_TELA = 900;
-	private final int ALTURA_TELA = 500;
-
-	private String algoritmo;
+	private int LARGURA_TELA = 900;
 	private int numCpu;
+
+	// ==========================================================================================================================================
+	// ATRIBUTOS DO ALGORITMO
+	// ==========================================================================================================================================
+
+	private JPanel filaBloqueadosPanel;
+	private JPanel filaAptosConteiner;
+	private JPanel coresProcesssamentoPanel;
+
+	private String nomeAlgoritmo;
 	private int quantum;
 
-	private Generico generico;
+	private ArrayList<JPanel> celulasProcessamento;
 
-	// private HashMap<Integer, Processo> listaProcesos = new HashMap<>();
-	private HashMap<Integer, JPanel> listaCPU = new HashMap<>();
-	private ArrayList<JPanel> cores;
+	private EscalonadorGenerico escalonador;
 
-	private JPanel painelCpu;
+	// ==========================================================================================================================================
+	// CONSTRUTOR DA CLASSE
+	// ==========================================================================================================================================
 
-	public JanelaPrincipal(String algoritmo, int numCpu, int quantum) {
+	public JanelaPrincipal(String algoritmo, int numCpu, int quantum, int numProcessos) {
 
-		this.algoritmo = algoritmo;
+		this.nomeAlgoritmo = algoritmo;
 		this.numCpu = numCpu;
 		this.quantum = quantum;
 
-		System.out.println("Janela Principal Criada");
-		System.out.println("Algoritmo escolhido:" + algoritmo);
-		System.out.println("Quantum escolhido:" + quantum);
-		System.out.println("Numero de CPU:" + numCpu);
+		initPainelCabecalho();
+		initPainelControle();
+		initPainelProcessos();
+		initPainelCPU();
 
-		initFrame();
-	}
-
-	private void initFrame() {
 		frame = new JFrame();
 		frame.setVisible(true);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(LARGURA_TELA, ALTURA_TELA);
+		frame.setSize(LARGURA_TELA, 700);
 		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setLayout(null);
-		frame.getContentPane().add(getPainelCabecalho());
-		frame.getContentPane().add(getPainelProcessos());
-		frame.getContentPane().add(getPainelControle());
-		frame.getContentPane().add(getPainelCPU());
+
+		frame.getContentPane().add(cabecalhoPanel);
+		frame.getContentPane().add(processosPanel);
+		frame.getContentPane().add(controlePanel);
+		frame.getContentPane().add(cpuPanel);
+
+		escalonador = new EscalonadorGenerico(numProcessos, celulasProcessamento, filaBloqueadosPanel,
+				filaAptosConteiner);
 	}
 
-	private JPanel getPainelCPU() {
+	// ==========================================================================================================================================
+	// CABECHALHO
+	// ==========================================================================================================================================
 
-		initPainelCPU();
+	private JPanel cabecalhoPanel;
 
-		JPanel cpuPanel = new JPanel();
-		cpuPanel.setBackground(Color.DARK_GRAY);
-		cpuPanel.setBounds(0, 41, 900, 302);
-		cpuPanel.setLayout(null);
+	private void initPainelCabecalho() {
 
-		JLabel lblNewLabel = new JLabel("Cores de Processamento: " + numCpu);
-		lblNewLabel.setForeground(Color.YELLOW);
-		lblNewLabel.setBounds(10, 11, 266, 22);
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		lblNewLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		JLabel tituloCabecalhoLabel = new JLabel("Algoritmo: " + nomeAlgoritmo);
+		tituloCabecalhoLabel.setBounds(10, 11, 852, 22);
+		tituloCabecalhoLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		tituloCabecalhoLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+		cabecalhoPanel = new JPanel();
+		cabecalhoPanel.setBackground(Color.ORANGE);
+		cabecalhoPanel.setBounds(0, 0, 900, 42);
+		cabecalhoPanel.setLayout(null);
+		cabecalhoPanel.add(tituloCabecalhoLabel);
+	}
+
+	// ==========================================================================================================================================
+	// AREA DAS CPUS
+	// ==========================================================================================================================================
+
+	private JPanel cpuPanel;
+
+	private void initPainelCPU() {
+
+		JLabel numCpuLabel = new JLabel("Cores de Processamento: " + numCpu);
+		numCpuLabel.setForeground(Color.YELLOW);
+		numCpuLabel.setBounds(10, 11, 266, 22);
+		numCpuLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		numCpuLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+		initCoresProcessadmento();
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(20, 44, 858, 229);
-		scrollPane.setViewportView(painelCpu);
+		scrollPane.setBounds(20, 44, 858, 146);
+		scrollPane.setViewportView(coresProcesssamentoPanel);
 
-		cpuPanel.add(lblNewLabel);
+		cpuPanel = new JPanel();
+		cpuPanel.setBackground(Color.DARK_GRAY);
+		cpuPanel.setBounds(0, 41, 900, 213);
+		cpuPanel.setLayout(null);
+		cpuPanel.add(numCpuLabel);
 		cpuPanel.add(scrollPane);
 
 		if (quantum > 0) {
-
 			JLabel valorQuantumLabel = new JLabel("Valor do Quantum: " + quantum);
 			valorQuantumLabel.setHorizontalAlignment(SwingConstants.LEFT);
 			valorQuantumLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 			valorQuantumLabel.setForeground(Color.YELLOW);
 			valorQuantumLabel.setBounds(286, 11, 266, 22);
-
 			cpuPanel.add(valorQuantumLabel);
 		}
-
-		return cpuPanel;
 	}
 
-	private void initPainelCPU() {
+	private void initCoresProcessadmento() {
 
-		this.painelCpu = new JPanel();
-		this.painelCpu.setLayout(new GridLayout(4, 2, 0, 0));
+		coresProcesssamentoPanel = new JPanel();
+		coresProcesssamentoPanel.setLayout(new GridLayout(4, 2, 0, 0));
 
-		cores = new ArrayList<>();
+		celulasProcessamento = new ArrayList<>();
 
 		for (int i = 0; i < this.numCpu; i++) {
+
+			JLabel label = new JLabel("Livre");
+			label.setForeground(Color.YELLOW);
+			label.setHorizontalAlignment(SwingConstants.CENTER);
 
 			JPanel panel = new JPanel();
 			panel.setSize(50, 50);
 			panel.setLayout(new GridLayout(0, 1, 0, 0));
 			panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+			panel.setBackground(Color.RED);
+			panel.add(label);
 
-			cores.add(panel);
+			celulasProcessamento.add(panel);
 		}
 
-		for (JPanel panel : cores)
-			this.painelCpu.add(panel);
+		for (JPanel panel : celulasProcessamento)
+			coresProcesssamentoPanel.add(panel);
+
 	}
 
-	private JPanel getPainelProcessos() {
-		JPanel processosPanel = new JPanel();
-		processosPanel.setBounds(0, 342, 900, 99);
+	// ==========================================================================================================================================
+	// AREA DOS PROCESSOS APTOS E BLOQUEADOS
+	// ==========================================================================================================================================
+
+	private JPanel processosPanel;
+
+	private void initPainelProcessos() {
+
+		JLabel telaFilaBloqueados = new JLabel("Fila dos Bloqueados:");
+		telaFilaBloqueados.setHorizontalAlignment(SwingConstants.LEFT);
+		telaFilaBloqueados.setForeground(Color.YELLOW);
+		telaFilaBloqueados.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		telaFilaBloqueados.setBounds(10, 291, 163, 22);
+
+		JLabel filaAptosLabel = new JLabel("Fila dos Aptos:");
+		filaAptosLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		filaAptosLabel.setForeground(Color.YELLOW);
+		filaAptosLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		filaAptosLabel.setBounds(10, 11, 117, 22);
+
+		initFilaBloqueados();
+		initFilaAptos();
+
+		processosPanel = new JPanel();
+		processosPanel.setBounds(0, 251, 900, 389);
 		processosPanel.setBackground(Color.GRAY);
-		return processosPanel;
+		processosPanel.setLayout(null);
+		processosPanel.add(telaFilaBloqueados);
+		processosPanel.add(filaBloqueadosPanel);
+		processosPanel.add(filaAptosLabel);
+		processosPanel.add(filaAptosConteiner);
+		filaAptosConteiner.setLayout(null);
+
 	}
 
-	private JPanel getPainelCabecalho() {
-
-		JPanel cabecalhoPanel = new JPanel();
-		cabecalhoPanel.setBackground(Color.ORANGE);
-		cabecalhoPanel.setBounds(0, 0, 900, 42);
-		cabecalhoPanel.setLayout(null);
-
-		JLabel tituloCabecalhoLabel = new JLabel("Algoritmo: " + algoritmo);
-		tituloCabecalhoLabel.setBounds(10, 11, 852, 22);
-		tituloCabecalhoLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		tituloCabecalhoLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		cabecalhoPanel.add(tituloCabecalhoLabel);
-
-		return cabecalhoPanel;
+	private void initFilaAptos() {
+		filaAptosConteiner = new JPanel();
+		filaAptosConteiner.setBounds(10, 42, 869, 238);
 	}
 
-	private JPanel getPainelControle() {
-
-		JPanel painelControle = new JPanel();
-		painelControle.setBounds(0, 440, LARGURA_TELA, 31);
-		painelControle.setBackground(Color.LIGHT_GRAY);
-		painelControle.setLayout(new GridLayout(1, 0, 0, 0));
-
-		painelControle.add(getButtonStart());
-		painelControle.add(getButtonCriarProcesso());
-		painelControle.add(getButtonStop());
-
-		return painelControle;
+	private void initFilaBloqueados() {
+		filaBloqueadosPanel = new JPanel();
+		filaBloqueadosPanel.setBounds(10, 324, 869, 54);
 	}
 
-	private JButton getButtonStop() {
-		JButton stopButton = new JButton("Stop");
-		stopButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+	// ==========================================================================================================================================
+	// BOTOES DA JANELA
+	// ==========================================================================================================================================
 
-		stopButton.addMouseListener(new MouseAdapter() {
+	private JPanel controlePanel;
+
+	private JButton botaoStart;
+	private JButton botaoStop;
+	private JButton botaoCriarProcesso;
+
+	private void initPainelControle() {
+
+		controlePanel = new JPanel();
+		controlePanel.setBounds(0, 640, LARGURA_TELA, 31);
+		controlePanel.setBackground(Color.LIGHT_GRAY);
+		controlePanel.setLayout(new GridLayout(1, 0, 0, 0));
+
+		initBotaoCriarProcesso();
+		initBotaoStart();
+		initBotaoStop();
+
+		controlePanel.add(botaoStart);
+		controlePanel.add(botaoCriarProcesso);
+		controlePanel.add(botaoStop);
+
+	}
+
+	private void initBotaoStop() {
+		botaoStop = new JButton("Stop");
+		botaoStop.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		botaoStop.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				frame.setVisible(false);
@@ -174,49 +245,38 @@ public class JanelaPrincipal {
 			}
 		});
 
-		return stopButton;
 	}
 
-	private JButton getButtonCriarProcesso() {
-		JButton criarNovoProcessoButton = new JButton("Novo Processo");
-		criarNovoProcessoButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
-
-		criarNovoProcessoButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-				if (generico != null)
-					generico.adicionarProcesso();
-			}
-		});
-
-		return criarNovoProcessoButton;
-	}
-
-	private JButton getButtonStart() {
-
-		JButton startButton = new JButton("Start");
-
-		startButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
-
-		startButton.addMouseListener(new MouseAdapter() {
+	private void initBotaoStart() {
+		botaoStart = new JButton("Start");
+		botaoStart.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		botaoStart.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
 				try {
 
-					generico = new Generico(listaCPU, cores, painelCpu);
-					generico.start();
-
-					startButton.setEnabled(false);
+					if (botaoStart.isEnabled()) {
+						escalonador.start();
+						botaoStart.setEnabled(false);
+					}
 
 				} catch (Exception e) {
 					System.out.println("botao de start desativado");
 				}
 			}
 		});
-
-		return startButton;
 	}
 
+	private void initBotaoCriarProcesso() {
+		botaoCriarProcesso = new JButton("Novo Processo");
+		botaoCriarProcesso.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		botaoCriarProcesso.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				escalonador.addNovoProcesso();
+			}
+		});
+
+	}
 }

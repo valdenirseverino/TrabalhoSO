@@ -1,7 +1,8 @@
-package algoritmos;
+package Objetos;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.Random;
 
 import javax.swing.JLabel;
@@ -14,11 +15,12 @@ public class Processo extends Thread {
 	private int tempoExecucao;
 	private int timeLine;
 	private int prioridade;
+
 	private boolean isVivo;
 
-	JLabel idLabel;
-	JLabel tempoRestante;
-	JPanel painel;
+	private JLabel idLabel;
+	private JLabel tempoRestante;
+	private JPanel painel;
 
 	@Override
 	public void run() {
@@ -27,16 +29,26 @@ public class Processo extends Thread {
 		while (isVivo) {
 			try {
 
-				this.tempoExecucao = tempoExecucao - 1;
-				this.tempoRestante.setText("TR: " + this.tempoExecucao);
+				if (this.painel != null) {
 
-				if (tempoExecucao == 0) {
-					this.isVivo = false;
-					this.painel.removeAll();
-					this.painel.setBackground(Color.RED);
+					this.tempoExecucao = tempoExecucao - 1;
+					this.tempoRestante.setText("TR: " + this.tempoExecucao);
+
+					if (tempoExecucao == 0) {
+						
+						this.isVivo = false;
+						
+						JLabel label = new JLabel("Livre");
+						label.setForeground(Color.YELLOW);
+						label.setHorizontalAlignment(SwingConstants.CENTER);
+						
+						this.painel.removeAll();
+						this.painel.setBackground(Color.RED);
+						this.painel.add(label);
+					}
+
+					Thread.sleep(1000);
 				}
-
-				Thread.sleep(1000);
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -44,7 +56,27 @@ public class Processo extends Thread {
 		}
 	}
 
-	public Processo(int iD, JPanel panel) {
+	public void setPanel(JPanel panel) {
+
+		this.idLabel = new JLabel("PRO: " + this.idProcesso);
+		idLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+		this.tempoRestante = new JLabel(this.tempoExecucao + "s");
+		tempoRestante.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		tempoRestante.setHorizontalAlignment(SwingConstants.CENTER);
+
+		this.painel = panel;
+		this.painel.removeAll();
+		this.painel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+		this.painel.setLayout(new GridLayout(2, 0, 0, 0));
+		this.painel.add(idLabel);
+		this.painel.add(tempoRestante);
+		this.painel.setBackground(Color.green);
+		this.painel.repaint();
+	}
+
+	public Processo(int iD) {
 
 		Random gerador = new Random();
 
@@ -53,19 +85,6 @@ public class Processo extends Thread {
 		this.timeLine = 10 + gerador.nextInt(10);
 		this.prioridade = gerador.nextInt(3);
 		this.isVivo = true;
-		this.painel = panel;
-
-		this.idLabel = new JLabel("ID: " + this.idProcesso);
-		idLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-		this.tempoRestante = new JLabel("TR: " + this.tempoExecucao);
-		tempoRestante.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		tempoRestante.setHorizontalAlignment(SwingConstants.CENTER);
-
-		panel.add(idLabel);
-		panel.add(tempoRestante);
-		panel.setBackground(Color.green);
 
 		System.out.println("=============================================================");
 		System.out.println("PROCESSO " + this.idProcesso + " CRIADO....");
