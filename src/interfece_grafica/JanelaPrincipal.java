@@ -15,7 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
-import algoritmos.EscalonadorGenerico;
+import algoritmos.EscalonadorLTG;
 
 public class JanelaPrincipal {
 
@@ -31,7 +31,7 @@ public class JanelaPrincipal {
 	// ATRIBUTOS DO ALGORITMO
 	// ==========================================================================================================================================
 
-	private JPanel filaBloqueadosPanel;
+	private JPanel listaProcessosFinalizadosPanel;
 	private JPanel filaAptosConteiner;
 	private JPanel coresProcesssamentoPanel;
 
@@ -40,7 +40,7 @@ public class JanelaPrincipal {
 
 	private ArrayList<JPanel> celulasProcessamento;
 
-	private EscalonadorGenerico escalonador;
+	private EscalonadorLTG escalonador;
 
 	// ==========================================================================================================================================
 	// CONSTRUTOR DA CLASSE
@@ -70,8 +70,9 @@ public class JanelaPrincipal {
 		frame.getContentPane().add(controlePanel);
 		frame.getContentPane().add(cpuPanel);
 
-		escalonador = new EscalonadorGenerico(numProcessos, celulasProcessamento, filaBloqueadosPanel,
+		escalonador = new EscalonadorLTG(numProcessos, celulasProcessamento, listaProcessosFinalizadosPanel,
 				filaAptosConteiner);
+
 	}
 
 	// ==========================================================================================================================================
@@ -166,14 +167,15 @@ public class JanelaPrincipal {
 	// ==========================================================================================================================================
 
 	private JPanel processosPanel;
+	private JPanel conteinerFinalizados;
 
 	private void initPainelProcessos() {
 
-		JLabel telaFilaBloqueados = new JLabel("Fila dos Bloqueados:");
-		telaFilaBloqueados.setHorizontalAlignment(SwingConstants.LEFT);
-		telaFilaBloqueados.setForeground(Color.YELLOW);
-		telaFilaBloqueados.setFont(new Font("Tahoma", Font.PLAIN, 18));
-		telaFilaBloqueados.setBounds(10, 291, 163, 22);
+		JLabel telaFilaFinalizados = new JLabel("Fila dos Finalizados");
+		telaFilaFinalizados.setHorizontalAlignment(SwingConstants.LEFT);
+		telaFilaFinalizados.setForeground(Color.YELLOW);
+		telaFilaFinalizados.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		telaFilaFinalizados.setBounds(10, 291, 163, 22);
 
 		JLabel filaAptosLabel = new JLabel("Fila dos Aptos:");
 		filaAptosLabel.setHorizontalAlignment(SwingConstants.LEFT);
@@ -181,19 +183,18 @@ public class JanelaPrincipal {
 		filaAptosLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		filaAptosLabel.setBounds(10, 11, 117, 22);
 
-		initFilaBloqueados();
+		initConteinerBloqueados();
 		initFilaAptos();
 
 		processosPanel = new JPanel();
 		processosPanel.setBounds(0, 251, 900, 389);
 		processosPanel.setBackground(Color.GRAY);
 		processosPanel.setLayout(null);
-		processosPanel.add(telaFilaBloqueados);
-		processosPanel.add(filaBloqueadosPanel);
+		processosPanel.add(telaFilaFinalizados);
+		processosPanel.add(conteinerFinalizados);
 		processosPanel.add(filaAptosLabel);
 		processosPanel.add(filaAptosConteiner);
 		filaAptosConteiner.setLayout(null);
-
 	}
 
 	private void initFilaAptos() {
@@ -201,9 +202,18 @@ public class JanelaPrincipal {
 		filaAptosConteiner.setBounds(10, 42, 869, 238);
 	}
 
-	private void initFilaBloqueados() {
-		filaBloqueadosPanel = new JPanel();
-		filaBloqueadosPanel.setBounds(10, 324, 869, 54);
+	private void initConteinerBloqueados() {
+
+		conteinerFinalizados = new JPanel();
+		conteinerFinalizados.setBounds(10, 324, 869, 54);
+		conteinerFinalizados.setLayout(new GridLayout(1, 0, 0, 0));
+
+		listaProcessosFinalizadosPanel = new JPanel();
+		listaProcessosFinalizadosPanel.setLayout(new GridLayout(1, 0, 0, 0));
+
+		JScrollPane scrollPane = new JScrollPane(listaProcessosFinalizadosPanel);
+		conteinerFinalizados.add(scrollPane);
+
 	}
 
 	// ==========================================================================================================================================

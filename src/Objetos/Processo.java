@@ -18,6 +18,8 @@ public class Processo extends Thread {
 
 	private boolean isVivo;
 
+	private ICallbackFinalizarProcesso callbackFinalizarProcesso;
+
 	private JLabel idLabel;
 	private JLabel tempoRestante;
 	private JPanel painel;
@@ -35,13 +37,15 @@ public class Processo extends Thread {
 					this.tempoRestante.setText("TR: " + this.tempoExecucao);
 
 					if (tempoExecucao == 0) {
-						
+
 						this.isVivo = false;
-						
+
 						JLabel label = new JLabel("Livre");
 						label.setForeground(Color.YELLOW);
 						label.setHorizontalAlignment(SwingConstants.CENTER);
-						
+
+						callbackFinalizarProcesso.finalizarProcesso(this.idProcesso);
+
 						this.painel.removeAll();
 						this.painel.setBackground(Color.RED);
 						this.painel.add(label);
@@ -56,7 +60,7 @@ public class Processo extends Thread {
 		}
 	}
 
-	public void setPanel(JPanel panel) {
+	public void addPanel(JPanel panel) {
 
 		this.idLabel = new JLabel("PRO: " + this.idProcesso);
 		idLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -76,7 +80,9 @@ public class Processo extends Thread {
 		this.painel.repaint();
 	}
 
-	public Processo(int iD) {
+	public Processo(int iD, ICallbackFinalizarProcesso callback) {
+
+		this.callbackFinalizarProcesso = callback;
 
 		Random gerador = new Random();
 
@@ -93,6 +99,9 @@ public class Processo extends Thread {
 		System.out.println("PRIORIDADE: " + prioridade);
 
 	}
+
+	// GETTERS E SETTERS
+	// =====================================================================
 
 	public int getIdProcesso() {
 		return idProcesso;
