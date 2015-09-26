@@ -47,6 +47,26 @@ public class EscalonadorLTG extends Thread implements ICallbackFinalizarProcesso
 		painelProcessosFinalizados.repaint();
 	}
 
+	@Override
+	public void abortarProcesso(int idProcesso) {
+
+		System.out.println("Processo " + idProcesso + " foi abortado...");
+
+		JLabel idLabel = new JLabel("PRO: " + idProcesso);
+		idLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+		JPanel painel = new JPanel();
+		painel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+		painel.setLayout(new GridLayout(1, 0, 0, 0));
+		painel.setBackground(Color.RED);
+		painel.add(idLabel);
+
+		painelProcessosFinalizados.add(painel);
+		painelProcessosFinalizados.revalidate();
+		painelProcessosFinalizados.repaint();
+	}
+
 	public void addNovoProcesso() {
 
 		numProcessosCriados++;
@@ -74,19 +94,31 @@ public class EscalonadorLTG extends Thread implements ICallbackFinalizarProcesso
 
 				JPanel panel = listaCores.get(i);
 
-				if (panel.getBackground().equals(Color.RED)) {
+				if (listaProcessos.size() > 0) {
+					
+					Processo p;
+					
+					if (panel.getBackground().equals(Color.RED)) {
 
-					if (listaProcessos.size() > 0) {
-
-						Processo p = listaProcessos.remove(0);
+						p = listaProcessos.remove(0);
 						p.addPanel(panel);
-						p.start();
+						p.setProcessando(true);
+						
 
 						JPanel jp = listaPanelAptos.remove(0);
 						painelProcessosAptos.remove(jp);
 						painelProcessosAptos.revalidate();
 						painelProcessosAptos.repaint();
+					
+					} else {						
+						p = listaProcessos.get(i);
+						
 					}
+					
+					p.start();
+					
+					
+
 				}
 
 			}
@@ -122,6 +154,7 @@ public class EscalonadorLTG extends Thread implements ICallbackFinalizarProcesso
 
 			JPanel panel = new JPanel();
 			Processo p = new Processo(i, this);
+
 			p.addPanel(panel);
 
 			listaProcessos.add(p);

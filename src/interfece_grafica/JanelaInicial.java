@@ -115,7 +115,7 @@ public class JanelaInicial {
 
 		quantumSpinner = new JSpinner();
 		quantumSpinner.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		quantumSpinner.setModel(new SpinnerNumberModel(1, 1, 100, 1));
+		quantumSpinner.setModel(new SpinnerNumberModel(1, 1, 20, 1));
 		quantumSpinner.setBounds(253, 169, 66, 20);
 		return quantumSpinner;
 	}

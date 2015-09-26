@@ -13,15 +13,18 @@ public class Processo extends Thread {
 
 	private int idProcesso;
 	private int tempoExecucao;
-	private int timeLine;
+	private int deadLine;
 	private int prioridade;
 
 	private boolean isVivo;
+	private boolean isProcessando;
 
 	private ICallbackFinalizarProcesso callbackFinalizarProcesso;
 
 	private JLabel idLabel;
-	private JLabel tempoRestante;
+	private JLabel deadlineLabel;
+	private JLabel tempoProcessoLabel;
+
 	private JPanel painel;
 
 	@Override
@@ -33,25 +36,41 @@ public class Processo extends Thread {
 
 				if (this.painel != null) {
 
-					this.tempoExecucao = tempoExecucao - 1;
-					this.tempoRestante.setText("TR: " + this.tempoExecucao);
+					if (isProcessando) {
 
-					if (tempoExecucao == 0) {
+						this.tempoExecucao--;
+						this.tempoProcessoLabel.setText("TR: " + this.tempoExecucao);
 
-						this.isVivo = false;
+						if (tempoExecucao == 0) {
 
-						JLabel label = new JLabel("Livre");
-						label.setForeground(Color.YELLOW);
-						label.setHorizontalAlignment(SwingConstants.CENTER);
+							this.isVivo = false;
 
-						callbackFinalizarProcesso.finalizarProcesso(this.idProcesso);
+							JLabel label = new JLabel("Livre");
+							label.setForeground(Color.YELLOW);
+							label.setHorizontalAlignment(SwingConstants.CENTER);
 
-						this.painel.removeAll();
-						this.painel.setBackground(Color.RED);
-						this.painel.add(label);
+							callbackFinalizarProcesso.finalizarProcesso(this.idProcesso);
+
+							this.painel.removeAll();
+							this.painel.setBackground(Color.RED);
+							this.painel.add(label);
+						}
+
+						Thread.sleep(1000);
+
+					} else {
+
+						deadLine--;
+						this.deadlineLabel.setText("DL: " + this.deadLine + "s");
+
+						Thread.sleep(1000);
+
+						if (deadLine == 0) {
+							callbackFinalizarProcesso.abortarProcesso(idProcesso);
+							isVivo = false;
+						}
+
 					}
-
-					Thread.sleep(1000);
 				}
 
 			} catch (InterruptedException e) {
@@ -66,16 +85,22 @@ public class Processo extends Thread {
 		idLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		this.tempoRestante = new JLabel(this.tempoExecucao + "s");
-		tempoRestante.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		tempoRestante.setHorizontalAlignment(SwingConstants.CENTER);
+		this.tempoProcessoLabel = new JLabel("TE: " + this.tempoExecucao + "s");
+		tempoProcessoLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		tempoProcessoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+		this.deadlineLabel = new JLabel("DL: " + this.deadLine + "s");
+		deadlineLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		deadlineLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		deadlineLabel.setForeground(Color.RED);
 
 		this.painel = panel;
 		this.painel.removeAll();
 		this.painel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-		this.painel.setLayout(new GridLayout(2, 0, 0, 0));
+		this.painel.setLayout(new GridLayout(3, 0, 0, 0));
 		this.painel.add(idLabel);
-		this.painel.add(tempoRestante);
+		this.painel.add(tempoProcessoLabel);
+		this.painel.add(deadlineLabel);
 		this.painel.setBackground(Color.green);
 		this.painel.repaint();
 	}
@@ -84,18 +109,19 @@ public class Processo extends Thread {
 
 		this.callbackFinalizarProcesso = callback;
 
+		this.isProcessando = false;
+
 		Random gerador = new Random();
 
 		this.idProcesso = iD;
-		this.tempoExecucao = 10 + gerador.nextInt(90);
-		this.timeLine = 10 + gerador.nextInt(10);
-		this.prioridade = gerador.nextInt(3);
+		this.tempoExecucao = 4 + gerador.nextInt(16);
+		this.deadLine = 4 + gerador.nextInt(16);
 		this.isVivo = true;
 
 		System.out.println("=============================================================");
 		System.out.println("PROCESSO " + this.idProcesso + " CRIADO....");
 		System.out.println("TEMPO DE EXECUCAO: " + tempoExecucao);
-		System.out.println("TIME LINE: " + timeLine);
+		System.out.println("TIME LINE: " + deadLine);
 		System.out.println("PRIORIDADE: " + prioridade);
 
 	}
@@ -105,6 +131,14 @@ public class Processo extends Thread {
 
 	public int getIdProcesso() {
 		return idProcesso;
+	}
+
+	public boolean isProcessando() {
+		return isProcessando;
+	}
+
+	public void setProcessando(boolean isProcessando) {
+		this.isProcessando = isProcessando;
 	}
 
 	public void setIdProcesso(int idProcesso) {
@@ -120,11 +154,11 @@ public class Processo extends Thread {
 	}
 
 	public int getTimeLine() {
-		return timeLine;
+		return deadLine;
 	}
 
 	public void setTimeLine(int timeLine) {
-		this.timeLine = timeLine;
+		this.deadLine = timeLine;
 	}
 
 	public int getPrioridade() {
