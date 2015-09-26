@@ -12,20 +12,66 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
 import Objetos.ICallbackFinalizarProcesso;
-import Objetos.Processo;
+import Objetos.ProcessoLTG;
 
 public class EscalonadorLTG extends Thread implements ICallbackFinalizarProcesso {
 
+	// ATRIBUTOS
+	// ================================================================================================
+
+	private boolean isAtivo = true;
+
 	private int numProcessosCriados;
-	private boolean isVivo = true;
-	private int numProcessosIniciais;
 
 	private JPanel painelProcessosFinalizados;
-	private JPanel painelProcessosAptos;
+	private JPanel listaProcessosAptos;
 
-	private ArrayList<Processo> listaProcessos;
-	private ArrayList<JPanel> listaPanelAptos;
+	private ArrayList<ProcessoLTG> listaProcessos;
+	private ArrayList<JPanel> listaAptos;
 	private ArrayList<JPanel> listaCores;
+
+	// CONSTRUTOR
+	// ================================================================================================
+
+	public EscalonadorLTG(int processos, ArrayList<JPanel> cores, JPanel finalizados, JPanel aptos) {
+
+		this.listaProcessos = new ArrayList<>();
+		this.listaAptos = new ArrayList<>();
+
+		this.painelProcessosFinalizados = finalizados;
+		this.listaCores = cores;
+		this.numProcessosCriados = processos;
+
+		this.listaProcessosAptos = new JPanel();
+		this.listaProcessosAptos.setLayout(new GridLayout(1, 0, 0, 0));
+
+		// PREENCHE A LISTA DE APTOS COM PROCESSOS INICIAIS
+		// =============================================================================================
+
+		for (int i = 1; i <= processos; i++) {
+
+			JPanel panel = new JPanel();
+
+			ProcessoLTG processo = new ProcessoLTG(i, this);
+			processo.addPanel(panel);
+
+			listaProcessos.add(processo);
+			listaAptos.add(panel);
+
+			listaProcessosAptos.add(panel);
+
+		}
+
+		JScrollPane scrollPane = new JScrollPane(listaProcessosAptos);
+		scrollPane.setBounds(28, 25, 819, 80);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+		aptos.add(scrollPane);
+	}
+
+	// CALLBACKS
+	// ================================================================================================
 
 	@Override
 	public void finalizarProcesso(int idProcesso) {
@@ -34,9 +80,11 @@ public class EscalonadorLTG extends Thread implements ICallbackFinalizarProcesso
 
 		JLabel idLabel = new JLabel("PRO: " + idProcesso);
 		idLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		idLabel.setForeground(Color.WHITE);
 		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
 		JPanel painel = new JPanel();
+		painel.removeAll();
 		painel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 		painel.setLayout(new GridLayout(1, 0, 0, 0));
 		painel.setBackground(Color.BLUE);
@@ -48,15 +96,24 @@ public class EscalonadorLTG extends Thread implements ICallbackFinalizarProcesso
 	}
 
 	@Override
-	public void abortarProcesso(int idProcesso) {
+	public void abortarProcesso(ProcessoLTG processo, JPanel painel) {
 
-		System.out.println("Processo " + idProcesso + " foi abortado...");
+		int id = processo.getIdProcesso();
 
-		JLabel idLabel = new JLabel("PRO: " + idProcesso);
+		listaProcessos.remove(processo);
+
+		System.out.println("Processo " + id + " foi abortado...  ");
+
+		JLabel idLabel = new JLabel("PRO: " + id);
 		idLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		idLabel.setForeground(Color.WHITE);
 		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		JPanel painel = new JPanel();
+		listaAptos.remove(painel);
+		listaProcessosAptos.repaint();
+
+		// JPanel painel = new JPanel();
+		painel.removeAll();
 		painel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 		painel.setLayout(new GridLayout(1, 0, 0, 0));
 		painel.setBackground(Color.RED);
@@ -67,111 +124,68 @@ public class EscalonadorLTG extends Thread implements ICallbackFinalizarProcesso
 		painelProcessosFinalizados.repaint();
 	}
 
+	// CRIA NOVOS PROCESSOS
+	// ================================================================================================
+
 	public void addNovoProcesso() {
 
-		numProcessosCriados++;
+		this.numProcessosCriados++;
 
 		JPanel panel = new JPanel();
-		Processo p = new Processo(numProcessosCriados, this);
-		p.addPanel(panel);
 
-		listaProcessos.add(p);
-		listaPanelAptos.add(panel);
+		ProcessoLTG processo = new ProcessoLTG(numProcessosCriados, this);
+		processo.addPanel(panel);
+		processo.start();
 
-		painelProcessosAptos.add(panel);
-		painelProcessosAptos.revalidate();
-		painelProcessosAptos.repaint();
+		listaProcessos.add(processo);
+		listaAptos.add(panel);
 
+		listaProcessosAptos.add(panel);
+		listaProcessosAptos.revalidate();
+		listaProcessosAptos.repaint();
+
+	}
+
+	// EXECUCAO DA THREAD
+	// ================================================================================================
+
+	public void desativa() {
+		this.isAtivo = false;
+		for (ProcessoLTG p : listaProcessos)
+			p.setVivo(false);
 	}
 
 	@Override
 	public void run() {
 		super.run();
 
-		while (isVivo) {
+		for (ProcessoLTG processo : listaProcessos)
+			if (!processo.isAlive())
+				processo.start();
+
+		while (isAtivo) {
 
 			for (int i = 0; i < listaCores.size(); i++) {
 
 				JPanel panel = listaCores.get(i);
 
-				if (listaProcessos.size() > 0) {
-					
-					Processo p;
-					
-					if (panel.getBackground().equals(Color.RED)) {
+				if (listaProcessos.size() > 0 && listaAptos.size() > 0) {
 
-						p = listaProcessos.remove(0);
-						p.addPanel(panel);
-						p.setProcessando(true);
-						
+					if (panel.getBackground().equals(Color.BLACK)) {
 
-						JPanel jp = listaPanelAptos.remove(0);
-						painelProcessosAptos.remove(jp);
-						painelProcessosAptos.revalidate();
-						painelProcessosAptos.repaint();
-					
-					} else {						
-						p = listaProcessos.get(i);
-						
+						listaProcessosAptos.remove(listaAptos.remove(0));
+						listaProcessosAptos.revalidate();
+						listaProcessosAptos.repaint();
+
+						ProcessoLTG processo = listaProcessos.remove(0);
+						processo.addPanel(panel);
+						processo.setProcessando(true);
+
 					}
-					
-					p.start();
-					
-					
-
 				}
 
 			}
 
 		}
-
 	}
-
-	// ========================================================================================================
-	// CONSTRUTOR
-	// ========================================================================================================
-
-	public EscalonadorLTG(int numProcessos, ArrayList<JPanel> cores, JPanel finalizados, JPanel aptos) {
-
-		this.numProcessosCriados = 0;
-		this.listaProcessos = new ArrayList<>();
-		this.listaPanelAptos = new ArrayList<>();
-		this.numProcessosIniciais = numProcessos;
-		this.painelProcessosFinalizados = finalizados;
-		this.listaCores = cores;
-
-		initConteinerAptos(aptos);
-	}
-
-	private void initConteinerAptos(JPanel conteinerProcessosAptos) {
-
-		numProcessosCriados = numProcessosIniciais;
-
-		painelProcessosAptos = new JPanel();
-		painelProcessosAptos.setLayout(new GridLayout(1, 0, 0, 0));
-
-		for (int i = 1; i <= numProcessosIniciais; i++) {
-
-			JPanel panel = new JPanel();
-			Processo p = new Processo(i, this);
-
-			p.addPanel(panel);
-
-			listaProcessos.add(p);
-			listaPanelAptos.add(panel);
-
-			painelProcessosAptos.add(panel);
-
-		}
-
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(28, 25, 819, 80);
-		scrollPane.setViewportView(painelProcessosAptos);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-
-		conteinerProcessosAptos.add(scrollPane);
-
-	}
-
 }

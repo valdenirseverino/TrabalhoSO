@@ -31,14 +31,14 @@ public class JanelaPrincipal {
 	// ATRIBUTOS DO ALGORITMO
 	// ==========================================================================================================================================
 
-	private JPanel listaProcessosFinalizadosPanel;
-	private JPanel filaAptosConteiner;
-	private JPanel coresProcesssamentoPanel;
+	private JPanel finalizadosPainel;
+	private JPanel aptosPainel;
+	private JPanel coresPainel;
 
 	private String nomeAlgoritmo;
 	private int quantum;
 
-	private ArrayList<JPanel> celulasProcessamento;
+	private ArrayList<JPanel> listaCores;
 
 	private EscalonadorLTG escalonador;
 
@@ -70,9 +70,7 @@ public class JanelaPrincipal {
 		frame.getContentPane().add(controlePanel);
 		frame.getContentPane().add(cpuPanel);
 
-		escalonador = new EscalonadorLTG(numProcessos, celulasProcessamento, listaProcessosFinalizadosPanel,
-				filaAptosConteiner);
-
+		escalonador = new EscalonadorLTG(numProcessos, listaCores, finalizadosPainel, aptosPainel);
 	}
 
 	// ==========================================================================================================================================
@@ -115,10 +113,10 @@ public class JanelaPrincipal {
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		scrollPane.setBounds(20, 44, 858, 146);
-		scrollPane.setViewportView(coresProcesssamentoPanel);
+		scrollPane.setViewportView(coresPainel);
 
 		cpuPanel = new JPanel();
-		cpuPanel.setBackground(Color.DARK_GRAY);
+		cpuPanel.setBackground(Color.GRAY);
 		cpuPanel.setBounds(0, 41, 900, 213);
 		cpuPanel.setLayout(null);
 		cpuPanel.add(numCpuLabel);
@@ -136,10 +134,10 @@ public class JanelaPrincipal {
 
 	private void initCoresProcessadmento() {
 
-		coresProcesssamentoPanel = new JPanel();
-		coresProcesssamentoPanel.setLayout(new GridLayout(4, 2, 0, 0));
+		coresPainel = new JPanel();
+		coresPainel.setLayout(new GridLayout(2, 0, 0, 0));
 
-		celulasProcessamento = new ArrayList<>();
+		listaCores = new ArrayList<>();
 
 		for (int i = 0; i < this.numCpu; i++) {
 
@@ -149,21 +147,21 @@ public class JanelaPrincipal {
 
 			JPanel panel = new JPanel();
 			panel.setSize(50, 50);
-			panel.setLayout(new GridLayout(0, 1, 0, 0));
+			panel.setLayout(new GridLayout(1, 0, 0, 0));
 			panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-			panel.setBackground(Color.RED);
+			panel.setBackground(Color.BLACK);
 			panel.add(label);
 
-			celulasProcessamento.add(panel);
+			listaCores.add(panel);
 		}
 
-		for (JPanel panel : celulasProcessamento)
-			coresProcesssamentoPanel.add(panel);
+		for (JPanel panel : listaCores)
+			coresPainel.add(panel);
 
 	}
 
 	// ==========================================================================================================================================
-	// AREA DOS PROCESSOS APTOS E BLOQUEADOS
+	// AREA DOS PROCESSOS APTOS E FINALIZADOS
 	// ==========================================================================================================================================
 
 	private JPanel processosPanel;
@@ -183,7 +181,7 @@ public class JanelaPrincipal {
 		filaAptosLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		filaAptosLabel.setBounds(10, 11, 117, 22);
 
-		initConteinerBloqueados();
+		initPainelFinalizados();
 		initFilaAptos();
 
 		processosPanel = new JPanel();
@@ -193,26 +191,24 @@ public class JanelaPrincipal {
 		processosPanel.add(telaFilaFinalizados);
 		processosPanel.add(conteinerFinalizados);
 		processosPanel.add(filaAptosLabel);
-		processosPanel.add(filaAptosConteiner);
-		filaAptosConteiner.setLayout(null);
+		processosPanel.add(aptosPainel);
+		aptosPainel.setLayout(null);
 	}
 
 	private void initFilaAptos() {
-		filaAptosConteiner = new JPanel();
-		filaAptosConteiner.setBounds(10, 42, 869, 238);
+		aptosPainel = new JPanel();
+		aptosPainel.setBounds(10, 42, 869, 238);
 	}
 
-	private void initConteinerBloqueados() {
+	private void initPainelFinalizados() {
+
+		finalizadosPainel = new JPanel();
+		finalizadosPainel.setLayout(new GridLayout(1, 0, 0, 0));
 
 		conteinerFinalizados = new JPanel();
 		conteinerFinalizados.setBounds(10, 324, 869, 54);
 		conteinerFinalizados.setLayout(new GridLayout(1, 0, 0, 0));
-
-		listaProcessosFinalizadosPanel = new JPanel();
-		listaProcessosFinalizadosPanel.setLayout(new GridLayout(1, 0, 0, 0));
-
-		JScrollPane scrollPane = new JScrollPane(listaProcessosFinalizadosPanel);
-		conteinerFinalizados.add(scrollPane);
+		conteinerFinalizados.add(new JScrollPane(finalizadosPainel));
 
 	}
 
@@ -249,8 +245,12 @@ public class JanelaPrincipal {
 		botaoStop.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
+
+				escalonador.desativa();
+
 				frame.setVisible(false);
 				frame.dispose();
+
 				new JanelaInicial();
 			}
 		});
@@ -267,7 +267,9 @@ public class JanelaPrincipal {
 				try {
 
 					if (botaoStart.isEnabled()) {
+
 						escalonador.start();
+
 						botaoStart.setEnabled(false);
 					}
 

@@ -27,9 +27,9 @@ public class JanelaInicial {
 	private JRadioButton roundRobinRadioButton;
 	private JRadioButton schedulingRadioButton;
 
-	private final String LTG = "Least Yime to Go (LTG)";
-	private final String ROUND_ROBIN = "Fila de Prioridade comRound Robin";
-	private final String SCHEDULING = "Inteval-based Scheduling";
+	public static final String LTG = "Least Yime to Go (LTG)";
+	public static final String ROUND_ROBIN = "Fila de Prioridade com Round Robin";
+	public static final String SCHEDULING = "Inteval-based Scheduling";
 
 	public JanelaInicial() {
 		initialize();
@@ -104,7 +104,7 @@ public class JanelaInicial {
 			lista[i] = i + 1;
 
 		processadoresComboBox = new JComboBox<>(lista);
-		processadoresComboBox.setSelectedIndex(7);
+		processadoresComboBox.setSelectedIndex(0);
 		processadoresComboBox.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		processadoresComboBox.setBounds(253, 202, 66, 20);
 
@@ -115,7 +115,7 @@ public class JanelaInicial {
 
 		quantumSpinner = new JSpinner();
 		quantumSpinner.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		quantumSpinner.setModel(new SpinnerNumberModel(1, 1, 20, 1));
+		quantumSpinner.setModel(new SpinnerNumberModel(2, 2, 20, 1));
 		quantumSpinner.setBounds(253, 169, 66, 20);
 		return quantumSpinner;
 	}
@@ -160,10 +160,9 @@ public class JanelaInicial {
 		int resposta = -1;
 
 		while (resposta == -1)
-			resposta = JOptionPane.showConfirmDialog(frame, "Vc está certo disso?", "Confirmação", JOptionPane.YES_NO_OPTION);
+			resposta = JOptionPane.showConfirmDialog(frame, "Vc está certo disso?", "Confirmação",
+					JOptionPane.YES_NO_OPTION);
 
-		
-		
 		if (!algoritmo.equals(ROUND_ROBIN))
 			valorQuantum = -1;
 
